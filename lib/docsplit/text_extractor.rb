@@ -60,22 +60,30 @@ module Docsplit
       tempdir = Dir.mktmpdir
       base_path = File.join(@output, @pdf_name)
       escaped_pdf = ESCAPE[pdf]
+      hocr = ''
+      if @hocr
+        hocr = 'hocr'
+      end
       if pages
         pages.each do |page|
           tiff = "#{tempdir}/#{@pdf_name}_#{page}.tif"
           escaped_tiff = ESCAPE[tiff]
           file = "#{base_path}_#{page}"
           run "MAGICK_TMPDIR=#{tempdir} OMP_NUM_THREADS=2 gm convert -despeckle +adjoin #{MEMORY_ARGS} #{OCR_FLAGS} #{escaped_pdf}[#{page - 1}] #{escaped_tiff} 2>&1"
-          run "tesseract #{escaped_tiff} #{ESCAPE[file]} -l #{@language} 2>&1"
-          clean_text(file + '.txt') if @clean_ocr
+          run "tesseract #{escaped_tiff} #{ESCAPE[file]} -l #{@language} #{hocr} 2>&1"
+          if @horc == false
+            clean_text(file + '.txt') if @clean_ocr
+          end
           FileUtils.remove_entry_secure tiff
         end
       else
         tiff = "#{tempdir}/#{@pdf_name}.tif"
         escaped_tiff = ESCAPE[tiff]
         run "MAGICK_TMPDIR=#{tempdir} OMP_NUM_THREADS=2 gm convert -despeckle #{MEMORY_ARGS} #{OCR_FLAGS} #{escaped_pdf} #{escaped_tiff} 2>&1"
-        run "tesseract #{escaped_tiff} #{base_path} -l #{@language} 2>&1"
-        clean_text(base_path + '.txt') if @clean_ocr
+        run "tesseract #{escaped_tiff} #{base_path} -l #{@language} #{hocr} 2>&1"
+        if @horc == false
+          clean_text(base_path + '.txt') if @clean_ocr
+        end
       end
     ensure
       FileUtils.remove_entry_secure tempdir if File.exists?(tempdir)
@@ -123,6 +131,7 @@ module Docsplit
       @forbid_ocr = options[:ocr] == false
       @clean_ocr  = !(options[:clean] == false)
       @language   = options[:language] || 'eng'
+      @hocr       = options[:hocr]
     end
 
   end

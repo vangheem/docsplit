@@ -71,7 +71,7 @@ Options:
     # Use the OptionParser library to parse out all supported options. Return
     # options formatted for the Ruby API.
     def parse_options
-      @options = {:ocr => :default, :clean => true}
+      @options = {:ocr => :default, :clean => true, :hocr => false}
       @option_parser = OptionParser.new do |opts|
         opts.on('-o', '--output [DIR]', 'set the directory for all output') do |d|
           @options[:output] = d
@@ -96,6 +96,9 @@ Options:
         end
         opts.on('-r', '--rolling', 'generate images from each previous image') do |r|
           @options[:rolling] = true
+        end
+        opts.on('-h', '--hocr', 'generate hocr file instead') do |r|
+          @options[:hocr] = true
         end
         opts.on_tail('-v', '--version', 'display docsplit version') do
           puts "Docsplit version #{Docsplit::VERSION}"
